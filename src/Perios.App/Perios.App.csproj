@@ -95,6 +95,16 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Perios.Capture\Perios.Capture.csproj">
+      <Project>{894e6c81-2e8e-4435-a186-9dc47f5591f9}</Project>
+      <Name>Perios.Capture</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Perios.Export\Perios.Export.csproj">
+      <Project>{2b54ee09-93fa-49ba-bc85-c54b045355ff}</Project>
+      <Name>Perios.Export</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
