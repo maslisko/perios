@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,7 +13,7 @@ namespace Perios.Capture.TestApp
     class Program
     {
         static PeriodicVideoCapture pvc;
-        Bitmap frame;
+        static ConfigClass configuration = new ConfigClass();
 
         private static int counter = 0;
         private static string outputPath = @"C:\temp\";
@@ -20,28 +22,70 @@ namespace Perios.Capture.TestApp
 
         static void Main(string[] args)
         {
+            
+            ProcessInputParameters(args);
+            
             pvc =  new PeriodicVideoCapture();
             pvc.setInterval(1000);
 
             Program.ShowVideoDevices(pvc);
 
             pvc.SelectVideoDevice(pvc.ListVideoDevices().First<string>());
+            pvc.SetResolution(new Size(1600, 1200));
+
+            Console.WriteLine("Video Capabilities: ");
+            Program.ShowVideoResolutions(pvc);
             
-            pvc.TimerElapsed += Pvc_TimerElepsed;
-            pvc.StartCapture();
+            pvc.TimerElapsed += Pvc_TimerElapsed;
+            //pvc.StartCapture();
             while (true)
             {
-                ConsoleKeyInfo cki = Console.ReadKey();
-                switch (cki.KeyChar)
+                var cki = Console.ReadKey();
+                switch (cki.KeyChar.ToString().ToLower())
                 {
-                    case 't':pvc.StopCapture();
+                    case "t":pvc.StopCapture();
                         break;
-                    case 's': pvc.StartCapture();
+                    case "s": pvc.StartCapture();
                         break;
+                    case "r": ListVideoResolutions();
+                        break;
+                    case "d": ListVideoDevices();
+                        break;
+                    case "q": return;
                 }
-                if (cki.KeyChar.ToString().ToLower().Equals("q"))
-                    return;
             }
+        }
+
+        private static void ProcessInputParameters(string[] args)
+        {
+            // TODO return bool - test correctness of config property assignment
+            foreach (string argument in args)
+            {
+                string[] argumentPair = argument.Split('=');
+                Console.WriteLine(argumentPair[0] + "  =  " + argumentPair[1]);
+                
+                PropertyInfo propertyInfo = configuration.GetType().GetProperty(argumentPair[0]);
+                propertyInfo.SetValue(configuration, Convert.ChangeType(argumentPair[1], propertyInfo.PropertyType));
+
+            }
+            
+            var configProperties = configuration.GetType().GetProperties();
+            foreach(var configProperty in configProperties)
+            {
+                Console.WriteLine(configProperty.Name + " = " + configProperty.GetValue(configuration));
+            }
+        }
+
+        private static void ListVideoDevices()
+        {
+            List<string> videoDevices = pvc.ListVideoDevices() as List<string>;
+            videoDevices.ForEach(vd => Console.WriteLine(vd));
+        }
+
+        private static void ListVideoResolutions()
+        {
+            List<Size> videoResolutions = pvc.ListVideoResolutions() as List<Size>;
+            videoResolutions.ForEach(vr => Console.WriteLine(vr.Width+"x"+vr.Height));
         }
 
         private static void ShowVideoDevices(PeriodicVideoCapture pic)
@@ -53,9 +97,18 @@ namespace Perios.Capture.TestApp
             }
         }
 
-        private static void Pvc_TimerElepsed(object sender, EventArgs e)
+        private static void ShowVideoResolutions(PeriodicVideoCapture pic)
         {
-            string path = outputPath + outputFilePattern + counter + outputFileExtension;
+            List<Size> videoResolutions = pic.ListVideoResolutions() as List<Size>;
+            foreach (var vr in videoResolutions)
+            {
+                Console.WriteLine(vr.Width+"x"+vr.Height);
+            }
+        }
+
+        private static void Pvc_TimerElapsed(object sender, EventArgs e)
+        {
+            string path = outputPath + outputFilePattern + counter.ToString().PadLeft(6, '0') + outputFileExtension;
 
             Bitmap b = pvc.GetFrame();
             b.Save(path);

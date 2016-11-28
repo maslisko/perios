@@ -17,6 +17,8 @@ namespace Perios.Capture
         
         private int _interval = 500;
 
+        
+
         /// <summary>
         /// Interval of the built-in timer
         /// </summary>
@@ -28,7 +30,21 @@ namespace Perios.Capture
             }
             set
             {
-                _interval = Interval;
+                _interval = value;
+            }
+        }
+
+        private string outputPath = String.Empty;
+
+        public string OutputPath
+        {
+            get
+            {
+                return outputPath;
+            }
+            set
+            {
+                outputPath = value;
             }
         }
 
@@ -37,6 +53,11 @@ namespace Perios.Capture
             _interval = (interval == 0) ? Int32.Parse(ConfigurationManager.AppSettings["defaultInterval"]) : interval;
             _t = new Timer(_interval);
             _t.Elapsed += T_Elapsed;           
+        }
+
+        public PeriodicImageCapture(ConfigClass configuration)
+        {
+
         }
 
         /// <summary>

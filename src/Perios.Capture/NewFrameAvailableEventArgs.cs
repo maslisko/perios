@@ -8,6 +8,5 @@ namespace Perios.Capture
 {
     public class NewFrameAvailableEventArgs:EventArgs
     {
-         
     }
 }

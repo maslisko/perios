@@ -22,13 +22,20 @@ namespace Perios.Capture
         void StopCapture();
 
         /// <summary>
-        /// Fires an event 
+        /// Fires an event when the timer elapses
         /// </summary>
         /// <param name="e">Event arguments</param>
         void OnTimerElapsed(EventArgs e);
 
+        /// <summary>
+        /// Gets current frame
+        /// </summary>
         Bitmap GetFrame();
 
+        /// <summary>
+        /// Sets the interval of capturing the image
+        /// </summary>
+        /// <param name="interval">Interval of capturing</param>
         void setInterval(int interval);
 
         event EventHandler TimerElapsed;        
