@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -14,11 +15,15 @@ namespace Perios.Capture.TestApp
     {
         static PeriodicVideoCapture pvc;
         static ConfigClass configuration = new ConfigClass();
+        private static List<string> videoDevices = new List<string>();
 
+        private static int selectedVideoDeviceIndex = 0;
         private static int counter = 0;
         private static string outputPath = @"C:\temp\";
         private static string outputFilePattern = "image";
-        private static string outputFileExtension = ".bmp";
+        private static string outputFileExtension = ".png";
+
+        
 
         static void Main(string[] args)
         {
@@ -36,8 +41,12 @@ namespace Perios.Capture.TestApp
             Console.WriteLine("Video Capabilities: ");
             Program.ShowVideoResolutions(pvc);
             
+            // TODO: set video capture device
+            
+            // TODO: test setting video resolution
+
             pvc.TimerElapsed += Pvc_TimerElapsed;
-            //pvc.StartCapture();
+
             while (true)
             {
                 var cki = Console.ReadKey();
@@ -58,7 +67,7 @@ namespace Perios.Capture.TestApp
 
         private static void ProcessInputParameters(string[] args)
         {
-            // TODO return bool - test correctness of config property assignment
+            // TODO: return bool - test correctness of config property assignment
             foreach (string argument in args)
             {
                 string[] argumentPair = argument.Split('=');
@@ -90,7 +99,7 @@ namespace Perios.Capture.TestApp
 
         private static void ShowVideoDevices(PeriodicVideoCapture pic)
         {
-            List<string> videoDevices = pic.ListVideoDevices() as List<string>;
+            videoDevices = pic.ListVideoDevices() as List<string>;
             foreach (string videoDevice in videoDevices)
             {
                 Console.WriteLine(videoDevice);
@@ -108,12 +117,16 @@ namespace Perios.Capture.TestApp
 
         private static void Pvc_TimerElapsed(object sender, EventArgs e)
         {
-            string path = outputPath + outputFilePattern + counter.ToString().PadLeft(6, '0') + outputFileExtension;
-
-            Bitmap b = pvc.GetFrame();
-            b.Save(path);
-            Console.WriteLine("New image captured. Stored in: " + path);
+            SaveToDisk();
             counter++;
+        }
+
+        private static void SaveToDisk()
+        {
+            string path = Path.Combine(outputPath, outputFilePattern, counter.ToString().PadLeft(6, '0'), outputFileExtension);
+            Bitmap b = pvc.GetFrame();
+            b.Save(path, ImageFormat.Png);
+            Console.WriteLine("New image captured. Stored in: " + path);
         }
     }
 }

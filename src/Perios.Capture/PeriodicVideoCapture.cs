@@ -5,7 +5,7 @@ using System.Drawing;
 
 namespace Perios.Capture
 {
-    public class PeriodicVideoCapture : PeriodicImageCapture, IPeriodicImageCapture
+    public class PeriodicVideoCapture : PeriodicImageCapture
     {
         private VideoCaptureDevice captureDevice;
         private FilterInfoCollection videoDevices;
